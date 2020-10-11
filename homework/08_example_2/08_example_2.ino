@@ -17,6 +17,9 @@ float scale; // used for pulse duration to distance conversion
 //float distance_percent = 0.0;
 int bright_level = 0;
 
+int prev_dist = 0;
+int filtred_dist;
+
 void setup() {
 // initialize GPIO pins
   pinMode(PIN_LED, OUTPUT);
@@ -45,6 +48,7 @@ void loop() {
 
 // get a distance reading from the USS
   dist_raw = USS_measure(PIN_TRIG, PIN_ECHO);
+  dist_raw = filter_dist(dist_raw);
 
 // output the read value to the serial port
   Serial.print("Min:0,");
@@ -54,7 +58,7 @@ void loop() {
   Serial.println("Max:400");
 
 // turn on the LED if the distance is between dist_min and dist_max
-  if(dist_raw < dist_min || dist_raw > dist_max) {
+  if (dist_raw < dist_min || dist_raw > dist_max) {
     analogWrite(PIN_LED, 255);
   }
   else {
@@ -63,8 +67,8 @@ void loop() {
     } else {
       bright_level = (dist_max - dist_raw) * 255 / 100;
     }
-    Serial.print("bright level: ");
-    Serial.println(255 - bright_level);
+//    Serial.print("bright level: ");
+//    Serial.println(255 - bright_level);
     analogWrite(PIN_LED, 255 - bright_level);
   }
 
@@ -73,6 +77,16 @@ void loop() {
   
 // update last sampling time
   last_sampling_time += INTERVAL;
+}
+
+int filter_dist(int dist) {
+  int filtered_dist = 0;
+  if (dist_min < dist && dist < dist_max) {
+    prev_dist = dist;
+  }
+  filtered_dist = prev_dist;
+
+  return filtered_dist;
 }
 
 // get a distance reading from USS. return value is in millimeter.
