@@ -82,10 +82,6 @@ void loop() {
       myservo.writeMicroseconds(_DUTY_MAX);
     }
   }
-
-  if(_DIST_MIN <= dist_raw && dist_raw < _DIST_MAX) {
-     myservo.writeMicroseconds(_DUTY_MIN + ((int) (dist_raw - _DIST_MIN) * _DUTY_PER_DEGREE));
-  }
    
 // update last sampling time
   last_sampling_time += INTERVAL;
